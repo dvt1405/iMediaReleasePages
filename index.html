@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" sizes="140x140" href="assets/xemtv_icon.webp">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XemTV - Free Community TV</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        header,
+        section {
+            padding: 60px 20px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease-out;
+        }
+
+        header.active,
+        section.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        header {
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 100px 20px;
+        }
+
+        .qrcode-section img {
+            width: 200px;
+            margin: 20px 0;
+            border: 8px solid #334155;
+            border-radius: 12px;
+            background: white;
+        }
+
+        .payment-buttons button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #3b82f6;
+            color: white;
+            transition: background 0.3s ease;
+        }
+
+        .payment-buttons button:hover {
+            background: #1e40af;
+        }
+
+        .disclaimer {
+            font-size: 14px;
+            opacity: 0.7;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px 20px;
+            background-color: #0f172a;
+            color: white;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .logo-small {
+            border-radius: 50%;
+            /* fully rounded */
+            object-fit: cover;
+        }
+
+        /* Title Styling */
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #38bdf8;
+            margin-bottom: 10px;
+            animation: fadeInTitle 1s ease-out forwards;
+        }
+
+        /* Description Styling */
+        .description {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: fadeInText 1.2s ease-out 0.5s forwards;
+        }
+
+        /* Title Animation */
+        @keyframes fadeInTitle {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Description Animation */
+        @keyframes fadeInText {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Header Reveal Animation when page loads */
+        body.loaded .header {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Loader */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loader-circle {
+            width: 60px;
+            height: 60px;
+            border: 8px solid #3b82f6;
+            border-top: 8px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .disclaimer-frame {
+            background: rgba(15, 23, 42, 0.7);
+            /* Overlay background: dark navy, semi-transparent */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            padding: 20px 30px;
+            border-radius: 20px;
+            color: #f1f5f9;
+            max-width: 900px;
+            margin: 40px auto;
+            text-align: left;
+            line-height: 1.6;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease-out;
+        }
+
+        /* Hiển thị khi cuộn tới (hoặc khi load xong) */
+        body.loaded .disclaimer-frame {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .disclaimer-frame strong {
+            color: #38bdf8;
+            /* Sky blue highlight */
+        }
+
+        .donate-section {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin: 40px auto;
+            max-width: 600px;
+            backdrop-filter: blur(8px);
+            color: #f1f5f9;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease-out;
+        }
+
+        .donate-section h2 {
+            color: #38bdf8;
+            margin-bottom: 10px;
+        }
+
+        .qr-donate-box {
+            margin: 20px auto;
+        }
+
+        .qr-donate-box img {
+            max-width: 200px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .payment-methods button {
+            background-color: #38bdf8;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            margin: 10px 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-methods button:hover {
+            background-color: #0ea5e9;
+        }
+
+        .or-text {
+            margin: 20px 0;
+            font-weight: bold;
+            color: #facc15;
+        }
+
+        body.loaded .donate-section {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .download-section {
+            text-align: center;
+            margin: 60px auto 30px;
+        }
+
+        .download-section h2 {
+            font-size: 2rem;
+            color: #38bdf8;
+            margin-bottom: 20px;
+        }
+
+        .download-grid {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .download-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: rgba(15, 23, 42, 0.7);
+            padding: 20px 25px;
+            border-radius: 16px;
+            width: 300px;
+            backdrop-filter: blur(8px);
+            color: #f1f5f9;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            text-align: left;
+        }
+
+        .download-card h3 {
+            font-size: 1.5rem;
+            color: #38bdf8;
+        }
+
+        .download-card p {
+            font-size: 0.95rem;
+            margin: 10px 0 20px;
+        }
+
+        .download-btn {
+            display: block;
+            background-color: #38bdf8;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            transition: background 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #0ea5e9;
+        }
+
+        /* APKPure Download Button */
+        .apk-pure-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #224f62;
+            /* Darker APKPure Green */
+            color: white;
+            text-decoration: none;
+            padding: 15px 15px;
+            border-radius: 12px;
+            margin: 10px 0;
+            transition: background 0.3s ease;
+            font-weight: bold;
+        }
+
+        .apk-pure-btn img {
+            height: 20px;
+            margin-right: 8px;
+        }
+
+        .apk-pure-btn:hover {
+            background-color: #289244;
+            /* Even Darker APKPure Green */
+        }
+
+        /* Direct APK Download Button */
+        .direct-apk-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #b77700;
+            /* Darker Contrast Color */
+            color: white;
+            text-decoration: none;
+            padding: 15px 15px;
+            border-radius: 12px;
+            margin: 10px 0;
+            transition: background 0.3s ease;
+            font-weight: bold;
+        }
+
+        .direct-apk-btn img {
+            height: 20px;
+            margin-right: 8px;
+        }
+
+        .direct-apk-btn:hover {
+            background-color: #c47e08;
+            /* Even Darker Contrast Color */
+        }
+
+        /* Khi trang load xong, hiện smooth */
+        body.loaded .download-card {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loader">
+        <div class="loader-circle"></div>
+    </div>
+
+    <header>
+
+        <div class="logo-container">
+            <img src="https://image.winudf.com/v2/image1/ZGV2X2ltYWdlXzI0MDc0NzY4XzIwMTQ0OV8yMDIzMDcyODAzNDY0NTE4MA/icon.webp?w=140&fakeurl=1&type=.webp"
+                alt="XemTV Logo" class="logo-small">
+        </div>
+        <div class="intro-container">
+            <h1 class="title">📺 Dự án Xem Truyền Hình Miễn Phí</h1>
+            <p class="description">
+                <span style="color:#38bdf8;" class="title">XemTV</span> là một dự án hoàn toàn <strong>miễn phí</strong>
+                và dành riêng
+                cho <strong>cộng đồng yêu thích
+                    truyền hình Việt Nam</strong>.
+                Chúng tôi giúp bạn theo dõi các kênh truyền hình yêu thích trên nhiều nền tảng khác như <strong>Android
+                    TV</strong> và
+                <strong>Điện thoại Android</strong>, hoàn toàn miễn phí và không cần đăng ký.
+                <br><br>
+                Dự án sử dụng <strong>web scraping</strong> để thu thập dữ liệu từ các nguồn miễn phí như <strong>VTV
+                    Go</strong>, <strong>Vieon</strong>, <strong>HTV</strong>,... giúp bạn dễ dàng xem những chương
+                trình
+                yêu thích mà không tốn bất kỳ chi phí nào.
+            </p>
+        </div>
+    </header>
+
+    <section class="donate-section">
+        <h2>Ủng Hộ Dự Án 💖</h2>
+        <p>Dự án <strong>XemTV</strong> hoàn toàn <strong>miễn phí</strong> cho cộng đồng. Nếu bạn yêu thích, hãy ủng hộ
+            mình nhé!</p>
+
+        <div class="qr-donate-box">
+            <img id="qrCodeImage" src="assets/qr_code_momo.jpg" alt="QR Donate" />
+            <div class="payment-methods">
+                <button onclick="changeQR('momo')">Momo</button>
+                <button onclick="changeQR('zalo')">ZaloPay</button>
+                <button onclick="changeQR('bank')">Ngân Hàng</button>
+            </div>
+        </div>
+
+        <div class="or-text">hoặc</div>
+
+        <a href="https://www.buymeacoffee.com/dvt1405" target="_blank" rel="noopener noreferrer">
+            <img src="https://img.buymeacoffee.com/button-api/?text=Buy a coffee here&emoji=☕&slug=dvt1405&button_colour=5F7FFF&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00"
+                alt="Buy Me a Coffee">
+        </a>
+    </section>
+
+    <section class="download-section">
+        <h2>Tải Ứng Dụng</h2>
+        <div class="download-grid">
+            <div class="download-card">
+                <h3>Android TV</h3>
+                <p>Hỗ trợ: Android TV, Google TV, Android Box và các thiết bị TV chạy hệ điều hành Android.</p>
+                <a href="https://apkpure.com/xem-tv/com.kt.apps.media.xemtv.beta/downloading" target="_blank"
+                    class="apk-pure-btn">
+                    <img src="https://image.winudf.com/v2/upload/images/icon.png/image.webp?fakeurl=1&w=90&type=.webp"
+                        alt="APKPure Logo"> Tải từ APKPure
+                </a>
+
+                <a href="/downloads/iMedia-25.04.05.B.apk" target="_blank" class="direct-apk-btn">
+                    <img src="https://image.winudf.com/v2/image1/Y29tLmt0LmFwcHMubWVkaWEueGVtdHZfaWNvbl8xNjk5MjY1OTc2XzA3Mw/icon.webp?w=280&fakeurl=1&type=.webp"
+                        alt="APK Icon"> Tải APK trực tiếp
+                </a>
+
+            </div>
+            <div class="download-card">
+                <h3>Phone</h3>
+                <p>Hỗ trợ: Thiết bị Android di động, Smartphone, máy tính bảng chạy Android.</p>
+                <a href="https://apkpure.com/imedia-xemtv-hd-mobile/com.kt.apps.media.mobile.xemtv/downloading" target="_blank"
+                    class="apk-pure-btn">
+                    <img src="https://image.winudf.com/v2/upload/images/icon.png/image.webp?fakeurl=1&w=90&type=.webp"
+                        alt="APKPure Logo"> Tải từ APKPure
+                </a>
+
+                <a href="/downloads/iMedia.Mobile.25.04.01-modBeta-release.apk" target="_blank" class="direct-apk-btn">
+                    <img src="assets/xemtv_icon.webp" alt="APK Icon"> Tải APK trực tiếp
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="disclaimer-frame">
+        <p>⚠️ <strong>XemTV</strong> là một dự án <strong>phi lợi nhuận</strong> dành cho cộng đồng, sử dụng phương pháp
+            <strong>web scraping</strong> từ các <strong>nguồn miễn phí trên Internet</strong>.
+        </p>
+        <p>🔥 <strong>Chúng tôi không chịu trách nhiệm về nội dung và bản quyền</strong> của các kênh truyền hình.</p>
+        <p>📡 Các kênh được <strong>thu thập công khai và miễn phí</strong>; nội dung kênh được <strong>cung cấp bởi các
+                nhà đài</strong> như: VTV, Vieon, HTV, THVL, VTC,...</p>
+        <p>🚫 Nếu có gián đoạn hoặc thay đổi nội dung từ phía nhà đài, <strong>XemTV không chịu trách nhiệm</strong> về
+            chất lượng tín hiệu hoặc bản quyền.</p>
+    </section>
+
+    <script>
+        // Loading screen logic
+        window.addEventListener('load', () => {
+            document.getElementById('loader').style.display = 'none';
+            revealOnScroll();
+        });
+
+        // Animate on scroll
+        window.addEventListener('scroll', revealOnScroll);
+
+        function revealOnScroll() {
+            document.querySelectorAll('header, section').forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= window.innerHeight - 100) {
+                    section.classList.add('active');
+                }
+            });
+        }
+
+        // QR Code swap logic
+        function changeQR(method) {
+            const qr = document.getElementById('qrImage');
+            switch (method) {
+                case 'momo':
+                    qr.src = 'assets/qr_code_momo.jpg';
+                    break;
+                case 'zalo':
+                    qr.src = 'assets/qr_zalo_pay.jpg';
+                    break;
+                case 'bank':
+                    qr.src = 'assets/qr_code_momo.jpg';
+                    break;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
