@@ -77,11 +77,25 @@ jobs:
           apk_url = r"${apk_url}"
           p = Path('index.html')
           data = p.read_text(encoding='utf-8')
-          # Match either relative or absolute existing TV apk href
-          pattern = r'href="[^"]*tv/[^\"]+\.apk"'
-          new_data, n = re.subn(pattern, f'href="{apk_url}"', data, count=1)
-          if n:
-              p.write_text(new_data, encoding='utf-8')
+
+          # Limit replacement to the Android TV card section to avoid touching Mobile link
+          start = data.find('<h3>Android TV</h3>')
+          end = data.find('<h3>Phone</h3>')
+          if start != -1 and end != -1 and end > start:
+              head = data[:start]
+              mid = data[start:end]
+              tail = data[end:]
+              # Replace either an existing tv apk href or a placeholder ${apk_url}
+              pattern = r'href="(?:[^"]*tv/[^"]+\.apk|\$\{apk_url\})"'
+              new_mid, n = re.subn(pattern, f'href="{apk_url}"', mid, count=1)
+              if n:
+                  data = head + new_mid + tail
+          else:
+              # Fallback: replace first occurrence anywhere
+              pattern = r'href="(?:[^"]*tv/[^"]+\.apk|\$\{apk_url\})"'
+              data, _ = re.subn(pattern, f'href="{apk_url}"', data, count=1)
+
+          p.write_text(data, encoding='utf-8')
           PY
 
       - name: Update index.html Mobile link
@@ -101,11 +115,25 @@ jobs:
           apk_url = r"${apk_url}"
           p = Path('index.html')
           data = p.read_text(encoding='utf-8')
-          # Match either relative or absolute existing Mobile apk href
-          pattern = r'href="[^"]*mobile/[^\"]+\.apk"'
-          new_data, n = re.subn(pattern, f'href="{apk_url}"', data, count=1)
-          if n:
-              p.write_text(new_data, encoding='utf-8')
+
+          # Limit replacement to the Phone card section
+          start = data.find('<h3>Phone</h3>')
+          end = data.find('</section>', start)
+          if start != -1 and end != -1 and end > start:
+              head = data[:start]
+              mid = data[start:end]
+              tail = data[end:]
+              # Replace either an existing mobile apk href or a placeholder ${apk_url}
+              pattern = r'href="(?:[^"]*mobile/[^"]+\.apk|\$\{apk_url\})"'
+              new_mid, n = re.subn(pattern, f'href="{apk_url}"', mid, count=1)
+              if n:
+                  data = head + new_mid + tail
+          else:
+              # Fallback: replace first matching anywhere
+              pattern = r'href="(?:[^"]*mobile/[^"]+\.apk|\$\{apk_url\})"'
+              data, _ = re.subn(pattern, f'href="{apk_url}"', data, count=1)
+
+          p.write_text(data, encoding='utf-8')
           PY
 
       - name: Commit and push changes if any
