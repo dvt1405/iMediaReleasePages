@@ -1,0 +1,147 @@
+name: Update APK links in index.html (TV + Mobile)
+
+on:
+  push:
+    paths:
+      - 'tv/*.apk'
+      - 'mobile/*.apk'
+      - 'index.html'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-apk-links:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find latest TV APK
+        id: find_tv
+        shell: bash
+        run: |
+          set -e
+          shopt -s nullglob
+          files=(tv/*.apk)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No APK files found in tv/. Skipping TV update." >&2
+            echo "found=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          latest_apk=$(ls -1t tv/*.apk | head -n1)
+          raw_url="https://github.com/dvt1405/iMediaReleasePages/raw/refs/heads/gh-pages/$latest_apk"
+          echo "Latest TV APK: $latest_apk"
+          echo "Raw TV URL: $raw_url"
+          echo "found=true" >> $GITHUB_OUTPUT
+          echo "apk_path=$latest_apk" >> $GITHUB_OUTPUT
+          echo "apk_url=$raw_url" >> $GITHUB_OUTPUT
+
+      - name: Find latest Mobile APK
+        id: find_mobile
+        shell: bash
+        run: |
+          set -e
+          shopt -s nullglob
+          files=(mobile/*.apk)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No APK files found in mobile/. Skipping Mobile update." >&2
+            echo "found=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          latest_apk=$(ls -1t mobile/*.apk | head -n1)
+          raw_url="https://github.com/dvt1405/iMediaReleasePages/raw/refs/heads/gh-pages/$latest_apk"
+          echo "Latest Mobile APK: $latest_apk"
+          echo "Raw Mobile URL: $raw_url"
+          echo "found=true" >> $GITHUB_OUTPUT
+          echo "apk_path=$latest_apk" >> $GITHUB_OUTPUT
+          echo "apk_url=$raw_url" >> $GITHUB_OUTPUT
+
+      - name: Update index.html TV link
+        if: steps.find_tv.outputs.found == 'true'
+        shell: bash
+        run: |
+          set -e
+          apk_url="${{ steps.find_tv.outputs.apk_url }}"
+          if [ ! -f index.html ]; then
+            echo "index.html not found; nothing to update (TV)." >&2
+            exit 0
+          fi
+          python3 - << 'PY'
+          import re
+          from pathlib import Path
+
+          apk_url = r"${apk_url}"
+          p = Path('index.html')
+          data = p.read_text(encoding='utf-8')
+          # Match either relative or absolute existing TV apk href
+          pattern = r'href="[^"]*tv/[^\"]+\.apk"'
+          new_data, n = re.subn(pattern, f'href="{apk_url}"', data, count=1)
+          if n:
+              p.write_text(new_data, encoding='utf-8')
+          PY
+
+      - name: Update index.html Mobile link
+        if: steps.find_mobile.outputs.found == 'true'
+        shell: bash
+        run: |
+          set -e
+          apk_url="${{ steps.find_mobile.outputs.apk_url }}"
+          if [ ! -f index.html ]; then
+            echo "index.html not found; nothing to update (Mobile)." >&2
+            exit 0
+          fi
+          python3 - << 'PY'
+          import re
+          from pathlib import Path
+
+          apk_url = r"${apk_url}"
+          p = Path('index.html')
+          data = p.read_text(encoding='utf-8')
+          # Match either relative or absolute existing Mobile apk href
+          pattern = r'href="[^"]*mobile/[^\"]+\.apk"'
+          new_data, n = re.subn(pattern, f'href="{apk_url}"', data, count=1)
+          if n:
+              p.write_text(new_data, encoding='utf-8')
+          PY
+
+      - name: Commit and push changes if any
+        shell: bash
+        run: |
+          set -e
+          if git diff --quiet; then
+            echo "No changes to commit."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@dvt1405.noreply.github.com"
+            git add index.html
+            git commit -m "ci: update APK links in index.html to latest in /tv and /mobile"
+            git push
+          fi
+
+      - name: Install Firebase CLI
+        shell: bash
+        run: |
+          npm install -g firebase-tools
+          firebase --version
+
+      - name: Deploy to Firebase Hosting
+        shell: bash
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        run: |
+          set -e
+          if [ -z "$FIREBASE_TOKEN" ]; then
+            echo "FIREBASE_TOKEN secret is not set. Please add it in the repository settings." >&2
+            exit 1
+          fi
+          PROJECT_ARG=""
+          if [ -n "$FIREBASE_PROJECT_ID" ]; then
+            PROJECT_ARG="--project $FIREBASE_PROJECT_ID"
+          fi
+          # Deploy only hosting as requested
+          firebase deploy --only hosting $PROJECT_ARG
