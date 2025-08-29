@@ -165,13 +165,11 @@ jobs:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
         run: |
           set -e
-          if [ -z "$FIREBASE_TOKEN" ]; then
-            echo "FIREBASE_TOKEN secret is not set. Please add it in the repository settings." >&2
-            exit 1
-          fi
           PROJECT_ARG=""
-          if [ -n "$FIREBASE_PROJECT_ID" ]; then
-            PROJECT_ARG="--project $FIREBASE_PROJECT_ID"
+          if [ -n ${{ secrets.FIREBASE_TOKEN }} ]; then
+            PROJECT_ARG="--token ${{ secrets.FIREBASE_TOKEN }}"
+          if [ -n ${{ secrets.FIREBASE_PROJECT_ID }} ]; then
+            PROJECT_ARG="--project ${{ secrets.FIREBASE_PROJECT_ID }}"
           fi
           # Deploy only hosting as requested
           firebase deploy --only hosting $PROJECT_ARG
