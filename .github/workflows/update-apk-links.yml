@@ -33,7 +33,7 @@ jobs:
             exit 0
           fi
           latest_apk=$(ls -1t tv/*.apk | head -n1)
-          raw_url="https://github.com/dvt1405/iMediaReleasePages/raw/refs/heads/gh-pages/$latest_apk"
+          raw_url="https://github.com/dvt1405/iMediaReleasePages/raw/refs/heads/gh-pages/tv/$latest_apk"
           echo "Latest TV APK: $latest_apk"
           echo "Raw TV URL: $raw_url"
           echo "found=true" >> $GITHUB_OUTPUT
@@ -53,7 +53,7 @@ jobs:
             exit 0
           fi
           latest_apk=$(ls -1t mobile/*.apk | head -n1)
-          raw_url="https://github.com/dvt1405/iMediaReleasePages/raw/refs/heads/gh-pages/$latest_apk"
+          raw_url="https://github.com/dvt1405/iMediaReleasePages/raw/refs/heads/gh-pages/mobile/$latest_apk"
           echo "Latest Mobile APK: $latest_apk"
           echo "Raw Mobile URL: $raw_url"
           echo "found=true" >> $GITHUB_OUTPUT
@@ -166,10 +166,11 @@ jobs:
         run: |
           set -e
           PROJECT_ARG=""
-          if [ -n ${{ secrets.FIREBASE_TOKEN }} ]; then
-            PROJECT_ARG="--token ${{ secrets.FIREBASE_TOKEN }}"
           if [ -n ${{ secrets.FIREBASE_PROJECT_ID }} ]; then
             PROJECT_ARG="--project ${{ secrets.FIREBASE_PROJECT_ID }}"
+          fi
+          if [ -n ${{ secrets.FIREBASE_TOKEN }} ]; then
+            PROJECT_ARG="--token ${{ secrets.FIREBASE_TOKEN }}"
           fi
           # Deploy only hosting as requested
           firebase deploy --only hosting $PROJECT_ARG
