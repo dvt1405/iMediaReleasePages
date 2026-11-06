@@ -1,9 +1,9 @@
 # iMediaReleasePages 
 <a href="https://www.buymeacoffee.com/dvt1405"><img src="https://img.buymeacoffee.com/button-api/?text=Buy a coffee here&emoji=☕&slug=dvt1405&button_colour=5F7FFF&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" /></a>
 ### This is release page of iMedia
-* Lastest version: 25.04.05
-* Android TV (26.11.11.B): [DownloadTVAPK](https://tvlaunchers.com/download/com.kt.apps.media.xemtv.beta/iMedia-26.11.11.B-k2504.apk) — đang dùng bản 25.08 trở lên thì tải [bản này](https://tvlaunchers.com/download/com.kt.apps.media.xemtv.beta/iMedia-26.11.11.B.apk)
-* Mobile: [MobileAPK](https://github.com/dvt1405/iMediaReleasePages/raw/refs/heads/gh-pages/iMedia.Mobile.25.04.01-modBeta-release.apk)
+* Lastest version: 26.11.12.B (biểu tượng có chữ NEW)
+* Android TV: [DownloadLastest](https://tvlaunchers.com/download/com.kt.apps.media.xemtv.beta/iMedia-26.11.12.B.apk) — một bản chung, cập nhật đè lên bản 25.04 hoặc 25.08. Cài xong hãy mở iMedia có chữ NEW.
+* Mobile: [MobileAPK](https://github.com/dvt1405/iMediaReleasePages/raw/refs/heads/gh-pages/mobile/iMedia.Mobile.25.08.01-modBeta-release.apk)
 
 
 ---
