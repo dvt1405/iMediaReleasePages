@@ -1,12 +1,15 @@
 name: Update APK links in index.html (TV + Mobile)
 
 on:
-  push:
-    paths:
-      - 'tv/*.apk'
-      - 'mobile/*.apk'
-      - 'index.html'
   workflow_dispatch:
+# Manual only since 2026-11-12 (GitHub token incident). Triggers before:
+# on:
+#   push:
+#     paths:
+#       - 'tv/*.apk'
+#       - 'mobile/*.apk'
+#       - 'index.html'
+#   workflow_dispatch:
 
 permissions:
   contents: write
